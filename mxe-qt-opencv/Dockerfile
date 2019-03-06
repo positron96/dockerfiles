@@ -67,7 +67,7 @@ WORKDIR  /build
 RUN git clone https://github.com/mxe/mxe.git
 
 # Build cross environment
-RUN cd mxe && make --jobs $(nproc) qtbase opencv 
+RUN cd mxe && make --jobs $(nproc) cc xz zlib
 
 # TODO: Cleanup all unneeded stuff to make a slim image
 
@@ -75,7 +75,7 @@ RUN cd mxe && make --jobs $(nproc) qtbase opencv
 ENV PATH /build/mxe/usr/bin:$PATH
 
 # Add a qmake alias
-RUN ln -s /build/mxe/usr/bin/i686-w64-mingw32.static-qmake-qt5 /build/mxe/usr/bin/qmake
+#RUN ln -s /build/mxe/usr/bin/i686-w64-mingw32.static-qmake-qt5 /build/mxe/usr/bin/qmake
 
 ##########################################################################
 # Here the project specific workflow starts.
