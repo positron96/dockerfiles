@@ -1,0 +1,11 @@
+
+FROM positron96/mxe_base
+
+WORKDIR  /build
+
+# Build cross environment
+RUN cd mxe && make --jobs $(nproc) opencv
+
+##########################################################################
+
+WORKDIR /src

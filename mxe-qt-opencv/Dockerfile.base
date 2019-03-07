@@ -23,8 +23,8 @@
 
 FROM debian:stretch
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     autoconf \
     automake \
     autopoint \
@@ -56,7 +56,8 @@ RUN apt-get install -y --no-install-recommends \
     sed \
     unzip \
     wget \
-    xz-utils
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # see http://stackoverflow.com/questions/10934683/how-do-i-configure-qt-for-cross-compilation-from-linux-to-windows-target
@@ -67,20 +68,15 @@ WORKDIR  /build
 RUN git clone https://github.com/mxe/mxe.git
 
 # Build cross environment
-RUN cd mxe && make --jobs $(nproc) cc xz zlib
+RUN cd mxe && make --jobs $(nproc) cc xz zlib pthreads autotools cmake
 
 # TODO: Cleanup all unneeded stuff to make a slim image
 
 # Enhance path
 ENV PATH /build/mxe/usr/bin:$PATH
 
-# Add a qmake alias
-#RUN ln -s /build/mxe/usr/bin/i686-w64-mingw32.static-qmake-qt5 /build/mxe/usr/bin/qmake
-
 ##########################################################################
 # Here the project specific workflow starts.
-#
-# Now copy the sources. They will become part of the image.
 RUN mkdir /src
 
 WORKDIR /src
