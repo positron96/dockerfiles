@@ -21,7 +21,7 @@
 #
 
 
-FROM debian:stretch
+FROM ubuntu:bionic
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -68,9 +68,7 @@ WORKDIR  /build
 RUN git clone https://github.com/mxe/mxe.git
 
 # Build cross environment
-RUN cd mxe && make --jobs $(nproc) cc xz zlib pthreads autotools cmake
-
-# TODO: Cleanup all unneeded stuff to make a slim image
+RUN cd mxe && make --jobs $(nproc) cc xz zlib pthreads autotools cmake && make clean-junk
 
 # Enhance path
 ENV PATH /build/mxe/usr/bin:$PATH
