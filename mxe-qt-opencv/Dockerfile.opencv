@@ -1,5 +1,5 @@
 
-FROM positron96/mxe_base
+FROM positron96/mxe-base
 
 WORKDIR  /build
 
