@@ -4,7 +4,7 @@ FROM positron96/mxe-base
 WORKDIR  /build
 
 # Build cross environment
-RUN cd mxe && make --jobs $(nproc) opencv
+RUN cd mxe && make --jobs $(nproc) opencv && make clean-junk
 
 ##########################################################################
 
