@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image
       run: |
-        export TAG=docker.pkg.github.com/positron96/Dockerfiles/mcu-eclipse-arm:$(date +%s)
+        export TAG=docker.pkg.github.com/positron96/dockerfiles/mcu-eclipse-arm:$(date +%s)
         docker build mcu-eclipse-arm --tag $TAG
         docker push $TAG
          
