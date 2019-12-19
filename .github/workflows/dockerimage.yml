@@ -10,6 +10,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Login to GitHub Docker Registry
+      run: docker login docker.pkg.github.com --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+      env:
+        DOCKER_USERNAME: positron96
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
     - name: Build the Docker image
       run: |
         export TAG=docker.pkg.github.com/positron96/dockerfiles/mcu-eclipse-arm:$(date +%s)
