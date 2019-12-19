@@ -11,4 +11,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build . --file mcu-eclipse-arm/Dockerfile --tag mcu-eclipse-arm:$(date +%s)
+      run: |
+        export TAG=docker.pkg.github.com/positron96/Dockerfiles/mcu-eclipse-arm:$(date +%s)
+        docker build mcu-eclipse-arm --tag $TAG
+        docker push $TAG
+         
+      
