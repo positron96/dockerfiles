@@ -20,7 +20,7 @@ jobs:
           folders = list(set(folders))
           print('unique:',folders)
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
-          print('filter by dockerfile exists:',folders); folders.append('preved')
+          print('filter by dockerfile exists:',folders); folders.extend(['preved']);
           open('folders.txt', 'w').write('\n'.join(folders))
           if len(folders)==0:
             print('Nothing to build')
