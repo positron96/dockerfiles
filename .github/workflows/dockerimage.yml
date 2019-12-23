@@ -23,6 +23,7 @@ jobs:
           print('filter by file exists:',folders)
           open('folders.txt', 'w').write('\n'.join(folders))
           if len(folders)==0:
+            import sys
             sys.exit(1)
           
       - name: Upload math result for job 1
