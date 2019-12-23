@@ -20,13 +20,14 @@ jobs:
           folders = list(set(folders))
           print('unique:',folders)
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
-          print('filter by file exists:',folders)
+          print('filter by dockerfile exists:',folders); folders.append('preved')
           open('folders.txt', 'w').write('\n'.join(folders))
           if len(folders)==0:
+            print('Nothing to build')
             import sys
             sys.exit(1)
           
-      - name: Upload math result for job 1
+      - name: upload folder list
         uses: actions/upload-artifact@v1
         with:
           name: folder-list
@@ -50,14 +51,16 @@ jobs:
     - name: Login to GitHub Docker Registry
       run: docker login docker.pkg.github.com --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
       env:
-        DOCKER_USERNAME: positron96
+        DOCKER_USERNAME: ${{ github.actor }}
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build the images
       run: |
+        ls folder-list
+        cat folder-list/folders.txt
         while read f; do 
           echo $f
-          export TAG=docker.pkg.github.com/positron96/dockerfiles/$f:$(date --iso-8601)-$SHA8
+          export TAG=docker.pkg.github.com/${{ github.repository }}/$f:$(date --iso-8601)-$SHA8
           echo $TAG
           #docker build $f/ --tag $TAG
           #docker push $TAG          
