@@ -3,22 +3,56 @@ name: Docker Image CI
 on: [push]
 
 jobs:
+  modified-files:    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: create file list
+        run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }} > files.txt
+      - name: extract folders
+        shell: python
+        run: |
+          files = open('files.txt', 'r').readlines()
+          folders = [ s.strip().split('/')[0] for s in files if '/' in s]
+          folders = list(set(folders))
+          print(folders)
+          open('folders.txt', 'w').write('\n'.join(folders))
+          
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v1
+        with:
+          name: folder-list
+          path: folders.txt
+
 
   build:
 
     runs-on: ubuntu-latest
+    env:
+      SHA8: ${GITHUB_SHA::8}
 
     steps:
     - uses: actions/checkout@v1
+    - name: get folder list
+      uses: actions/download-artifact@v1
+      with:
+        name: folder-list
+
     - name: Login to GitHub Docker Registry
       run: docker login docker.pkg.github.com --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
       env:
         DOCKER_USERNAME: positron96
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build the Docker image
+
+    - name: Build the images
       run: |
-        export TAG=docker.pkg.github.com/positron96/dockerfiles/mcu-eclipse-arm:$(date +%s)
-        docker build mcu-eclipse-arm --tag $TAG
-        docker push $TAG
+        while read f; do 
+          echo $f
+          export TAG=docker.pkg.github.com/positron96/dockerfiles/$f:$(date --iso-8601)-$SHA8
+          echo $TAG
+          #docker build $f/ --tag $TAG
+          #docker push $TAG          
+        done < folders.txt
+        
          
       
