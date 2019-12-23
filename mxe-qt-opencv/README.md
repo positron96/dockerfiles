@@ -1,3 +1,5 @@
+# Docker image with MXE, Qt and OpenCV
+
 A cross-compile environment for qt applications with opencv library.
 
 Uses mxe project. https://mxe.cc/

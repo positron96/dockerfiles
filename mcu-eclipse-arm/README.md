@@ -14,11 +14,11 @@ releases page from Github. See:
 ``docker run -it -v dir:/workspace eclipse-mcu-arm project Debug``
 
 Where:
- * ``dir`` is directory on hst that contains folder with project
- * ``project`` project folder
+ * `dir` is directory on hst that contains folder with project
+ * `project` project folder
  * `Debug` name of target.
 
-This command will create a new Eclipse workspace in directory `dir`.
+As a side effect, this command will create a new Eclipse workspace in directory `dir`.
 
 
 Can also be used with, e.g. Gitlab CI/CD, with following job in .gitlab-ci.yml:

@@ -1,5 +1,3 @@
-# Minimal docker container to build project 
-
 FROM ubuntu:xenial
 MAINTAINER positron96
 
