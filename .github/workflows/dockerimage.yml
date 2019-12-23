@@ -59,12 +59,13 @@ jobs:
 
     - name: Build the images
       run: |
-        ls folder-list
+        echo "Will build these directories:"
         cat folder-list/folders.txt
+        echo '=================='
         while read f; do 
-          echo Folder is $f
           export TAG=docker.pkg.github.com/${{ github.repository }}/$f:$(date --iso-8601)-${GITHUB_SHA::8}
-          echo Will be tagged as $TAG
+          echo '==================='
+          echo Folder $f,  will be tagged as $TAG
           docker build $f/ --tag $TAG
           docker push $TAG          
         done < folder-list/folders.txt
