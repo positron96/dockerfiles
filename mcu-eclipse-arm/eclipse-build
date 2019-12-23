@@ -1,0 +1,5 @@
+#!/bin/sh
+DIR=$1
+PROJ=$2
+TARGET=$3
+eclipse --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data $DIR -import $DIR/$PROJ -cleanBuild $PROJ/$TARGET

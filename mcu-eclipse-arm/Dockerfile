@@ -33,6 +33,7 @@ ENV PATH="${PATH}:/opt/eclipse:/opt/arm-none-eabi-gcc/bin"
 WORKDIR /workspace
 VOLUME /workspace
 
+ADD eclipse-build /usr/local/bin
 ADD entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
