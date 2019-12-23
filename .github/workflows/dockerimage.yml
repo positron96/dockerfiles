@@ -3,19 +3,24 @@ name: Docker Image CI
 on: [push]
 
 jobs:
-  modified-files:    
+  modified-folders:    
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@v1
       - name: create file list
         run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }} > files.txt
       - name: extract folders
         shell: python
         run: |
+          import os
           files = open('files.txt', 'r').readlines()
           folders = [ s.strip().split('/')[0] for s in files if '/' in s]
+          print('filter type:',folders)
           folders = list(set(folders))
-          print(folders)
+          print('unique:',folders)
+          folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
+          print('filter by file exists:',folders)
           open('folders.txt', 'w').write('\n'.join(folders))
           
       - name: Upload math result for job 1
@@ -28,6 +33,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    needs: modified-folders
     env:
       SHA8: ${GITHUB_SHA::8}
 
