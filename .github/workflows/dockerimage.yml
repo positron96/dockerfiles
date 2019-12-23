@@ -21,7 +21,7 @@ jobs:
           print('unique:',folders)
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
           print('filter by dockerfile exists:',folders); folders.extend(['mcu-eclipse-arm']);
-          open('folders.txt', 'w').write(\\.join([f+'\n' for f in folders]) )
+          open('folders.txt', 'w').writelines( (f+'\n') for f in folders )
           if len(folders)==0:
             print('Nothing to build')
             import sys
