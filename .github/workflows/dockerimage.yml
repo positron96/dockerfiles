@@ -22,6 +22,8 @@ jobs:
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
           print('filter by file exists:',folders)
           open('folders.txt', 'w').write('\n'.join(folders))
+          if len(folders)==0:
+            sys.exit(1)
           
       - name: Upload math result for job 1
         uses: actions/upload-artifact@v1
@@ -58,7 +60,7 @@ jobs:
           echo $TAG
           #docker build $f/ --tag $TAG
           #docker push $TAG          
-        done < folders.txt
+        done < folder-list/folders.txt
         
          
       
