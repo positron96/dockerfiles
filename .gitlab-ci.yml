@@ -63,9 +63,10 @@ build:
           VER=$(date +%F)-${GITHUB_SHA::8}
           echo '==================='
           echo Folder $f,  will be tagged as $TAG:$VER
-          docker build $f/ --tag $TAG:$VER
+          docker build $f/ --tag $TAG:$VER --tag $TAG:latest
           docker history $TAG:$VER
-          #docker push $TAG:$VER  
+          docker push $TAG:$VER
+          docker push $TAG:latest  
         done < folder-list/folders.txt
 
 
