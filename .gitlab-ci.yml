@@ -17,7 +17,7 @@ create_files:
   - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA > files.txt
   artifacts:
     expire_in: 1d
-    paths:  files.txt
+    paths: [ files.txt ]
   <<: *only_releases
 
 create_folders:
