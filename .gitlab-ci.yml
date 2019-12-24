@@ -1,6 +1,5 @@
 stages:
   - prep
-  - prep2
   - build
 
 # only- parts that only targets releases (and manual start)
@@ -9,24 +8,18 @@ stages:
     - /^release.+$/
     - web
 
-create_files:
-  stage: prep
-  image: 
-    name: alpine/git
-    entrypoint: [""]
-  script:
-  - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA > files.txt
-  artifacts:
-    expire_in: 1d
-    paths: [ files.txt ]
-  <<: *only_releases
+
 
 create_folders:
-  stage: prep2
+  stage: prep
   dependencies: [ create_files ]
   image: python:3-alpine
+  before_script:
+    - apk add git
   script:
+  - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA > files.txt
   - |
+      python -c '
           import os
           files = open('files.txt', 'r').readlines()
           folders = [ s.strip().split('/')[0] for s in files if '/' in s]
@@ -41,6 +34,7 @@ create_folders:
             print('Nothing to build')
             import sys
             sys.exit(1)
+      '
   artifacts:
     paths: [folders.txt]
 
