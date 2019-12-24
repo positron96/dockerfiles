@@ -1,5 +1,6 @@
 stages:
   - prep
+  - prep2
   - build
 
 # only- parts that only targets releases (and manual start)
@@ -21,8 +22,8 @@ create_files:
   <<: *only_releases
 
 create_folders:
-  stage: prep
-  dependencies: create_files
+  stage: prep2
+  dependencies: [ create_files ]
   image: python:3-alpine
   script:
   - |
@@ -45,17 +46,16 @@ create_folders:
 
 build:
   stage: build
-  dependencies: create_folders
+  dependencies: [ create_folders ]
   image: docker
-  environment:
-    - GITHUB_SHA=$CI_COMMIT_SHA
-    - REGISTRY=$CI_REGISTRY_IMAGE
-  before-script:
+  variables:
+    GITHUB_SHA: $CI_COMMIT_SHA
+    REGISTRY: $CI_REGISTRY_IMAGE
+  before_script:
     - mkdir folder-list
     - mv folders.txt folder-list/folders.txt
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo CI_REGISTRY_IMAGE
-    - 
   script:    
     - |
         echo "Will build these directories:"
