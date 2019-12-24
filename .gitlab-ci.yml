@@ -12,7 +12,6 @@ stages:
 
 create_folders:
   stage: prep
-  dependencies: [ create_files ]
   image: python:3-alpine
   before_script:
     - apk add git
