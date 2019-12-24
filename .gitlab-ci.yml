@@ -1,0 +1,74 @@
+stages:
+  - prep
+  - build
+
+# only- parts that only targets releases (and manual start)
+.only_releases_template: &only_releases
+  only:
+    - /^release.+$/
+    - web
+
+create_files:
+  stage: prep
+  image: 
+    name: alpine/git
+    entrypoint: [""]
+  script:
+  - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA > files.txt
+  artifacts:
+    expire_in: 1d
+    paths:  files.txt
+  <<: *only_releases
+
+create_folders:
+  stage: prep
+  dependencies: create_files
+  image: python:3-alpine
+  script:
+  - |
+          import os
+          files = open('files.txt', 'r').readlines()
+          folders = [ s.strip().split('/')[0] for s in files if '/' in s]
+          folders = list(set(folders))
+          folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
+          folders.append('xenial-jdk-ant')
+          
+          if len(folders)!=0:
+            print('Found folders: ', folders)
+            open('folders.txt', 'w').writelines( (f+'\n') for f in folders )
+          else:
+            print('Nothing to build')
+            import sys
+            sys.exit(1)
+  artifacts:
+    paths: [folders.txt]
+
+build:
+  stage: build
+  dependencies: create_folders
+  image: docker
+  environment:
+    - GITHUB_SHA=$CI_COMMIT_SHA
+    - REGISTRY=$CI_REGISTRY_IMAGE
+  before-script:
+    - mkdir folder-list
+    - mv folders.txt folder-list/folders.txt
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo CI_REGISTRY_IMAGE
+    - 
+  script:    
+    - |
+        echo "Will build these directories:"
+        cat folder-list/folders.txt
+        echo '=================='
+        while read f; do 
+          TAG=$REGISTRY/$f
+          VER=$(date --iso-8601)-${GITHUB_SHA::8}
+          echo '==================='
+          echo Folder $f,  will be tagged as $TAG:$VER
+          docker build $f/ --tag $TAG:$VER
+          docker history $TAG:$VER
+          #docker push $TAG:$VER  
+        done < folder-list/folders.txt
+
+
