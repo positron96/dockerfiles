@@ -18,7 +18,7 @@ create_folders:
   script:
   - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA > files.txt
   - |
-      python -c '
+          python -c '
           import os
           files = open('files.txt', 'r').readlines()
           folders = [ s.strip().split('/')[0] for s in files if '/' in s]
@@ -33,7 +33,7 @@ create_folders:
             print('Nothing to build')
             import sys
             sys.exit(1)
-      '
+          '
   artifacts:
     paths: [folders.txt]
 
