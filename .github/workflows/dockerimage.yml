@@ -23,6 +23,7 @@ jobs:
           folders = [ s.strip().split('/')[0] for s in files if '/' in s]
           folders = list(set(folders))
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
+          folders.append('mxe-qt-opencv')
           
           if len(folders)!=0:
             print('Found folders: ', folders)
@@ -67,6 +68,7 @@ jobs:
           echo '==================='
           echo Folder $f,  will be tagged as $TAG
           docker build $f/ --tag $TAG
+          docker history $TAG
           docker push $TAG          
         done < folder-list/folders.txt
         
