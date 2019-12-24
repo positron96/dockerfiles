@@ -41,7 +41,10 @@ build:
   stage: build
   dependencies: [ create_folders ]
   image: docker
+  services:
+    - docker:dind
   variables:
+    DOCKER_HOST: tcp://docker:2375/
     GITHUB_SHA: $CI_COMMIT_SHA
     REGISTRY: $CI_REGISTRY_IMAGE
   before_script:
