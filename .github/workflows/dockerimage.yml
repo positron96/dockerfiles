@@ -9,7 +9,7 @@ on:
 env:
   GIT_SHA: ${{ github.sha }}
   DOCKER_HOST:  docker.pkg.github.com
-  DOCKER_REGISTRY: ${{env.DOCKER_HOST}}/${{ github.repository }}
+  DOCKER_REGISTRY: docker.pkg.github.com/${{ github.repository }}
 
 jobs:
   
