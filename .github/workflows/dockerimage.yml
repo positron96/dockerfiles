@@ -19,6 +19,9 @@ jobs:
         TTT: ${{ toJson(secrets) }}
     steps:
       - run: echo "$TTT"
+      - run: echo "${{secrets.DOCKER}}"
+      - run: echo "${{secrets.ALL}}"
+      - run: echo "${{secrets.DOCKER.HOST}}"
      
   modified-folders:    
     runs-on: ubuntu-latest
