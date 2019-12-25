@@ -21,7 +21,9 @@ jobs:
       - run: echo "$TTT"
       - run: echo "${{secrets.DOCKER}}"
       - run: echo "${{secrets.ALL}}"
-      - run: echo "${{secrets.DOCKER.HOST}}"
+      - run: echo "${{secrets.DOCKER.host}}"
+      - run: echo "${{secrets.DOCKER.registry}}"
+        
      
   modified-folders:    
     runs-on: ubuntu-latest
