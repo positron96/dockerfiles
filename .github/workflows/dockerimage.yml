@@ -15,8 +15,10 @@ jobs:
   
   tests:
     runs-on: ubuntu-latest
+    env:
+        TTT: ${{ toJson(github) }}
     steps:
-      - run: echo ${{ toJson(secrets) }}
+      - run: echo "$TTT"
      
   modified-folders:    
     runs-on: ubuntu-latest
