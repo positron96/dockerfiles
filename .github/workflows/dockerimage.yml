@@ -8,22 +8,10 @@ on:
       - release.*
 env:
   GIT_SHA: ${{ github.sha }}
-  DOCKER_HOST:  docker.pkg.github.com
+  DOCKER_REGISTRY_HOST:  docker.pkg.github.com
   DOCKER_REGISTRY: docker.pkg.github.com/${{ github.repository }}
 
 jobs:
-  
-  tests:
-    runs-on: ubuntu-latest
-    env:
-        TTT: ${{ toJson(secrets) }}
-    steps:
-      - run: echo "$TTT"
-      - run: echo "${{secrets.DOCKER}}"
-      - run: echo "${{secrets.ALL}}"
-      - run: echo "${{secrets.DOCKER.host}}"
-      - run: echo "${{secrets.DOCKER.registry}}"
-        
      
   modified-folders:    
     runs-on: ubuntu-latest
@@ -71,12 +59,20 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: folder-list
+    - name: Set envs
+      shell: python
+      env: {DOCKER_DATA: "${{ secrets.DOCKER }}" }
+      run: |
+        import json, os
+        obj = json.loads(os.getenv('DOCKER_DATA'))
+        for k in obj:
+          print('::set-env DOCKER_'+k+': '+str(obj[k]) )
 
     - name: Login to GitHub Docker Registry      
       env:
-        DOCKER_USERNAME: ${{ github.actor }}
-        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      run: docker login $DOCKER_HOST --username $DOCKER_USERNAME --password $DOCKER_PASSWORD  
+        DOCKER_USERNAME: ${{ env.DOCKER_USERNAME || github.actor }}
+        DOCKER_PASSWORD: ${{ env.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
+      run: docker login $DOCKER_REGISTRY_HOST --username $DOCKER_USERNAME --password $DOCKER_PASSWORD  
 
     - name: Build the images
       run: |
