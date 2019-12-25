@@ -8,8 +8,6 @@ on:
       - release.*
 env:
   GIT_SHA: ${{ github.sha }}
-  DOCKER_REGISTRY_HOST:  docker.pkg.github.com
-  DOCKER_REGISTRY: docker.pkg.github.com/${{ github.repository }}
 
 jobs:
      
@@ -67,7 +65,7 @@ jobs:
         s = os.getenv('DOCKER_DATA');
         obj = json.loads(s)
         for k in obj:
-          print('::set-env DOCKER_'+k.upper()+': '+str(obj[k]) )
+          print('::set-env name=DOCKER_'+k.upper()+'::'+str(obj[k]) )
 
     - name: Login to GitHub Docker Registry      
       env:
