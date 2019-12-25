@@ -64,10 +64,10 @@ jobs:
       env: {DOCKER_DATA: "${{ secrets.DOCKER }}" }
       run: |
         import json, os
-        s = '${{ secrets.DOCKER }}'; print(s)
+        s = os.getenv('DOCKER_DATA');
         obj = json.loads(s)
         for k in obj:
-          print('::set-env DOCKER_'+k+': '+str(obj[k]) )
+          print('::set-env DOCKER_'+k.upper()+': '+str(obj[k]) )
 
     - name: Login to GitHub Docker Registry      
       env:
