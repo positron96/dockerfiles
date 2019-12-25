@@ -16,12 +16,14 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-        TTT: ${{ toJson(github) }}
+        TTT: ${{ toJson(secrets) }}
     steps:
       - run: echo "$TTT"
      
   modified-folders:    
     runs-on: ubuntu-latest
+    env:
+      ALL: ${{secrets.ALL}}
     
     steps:
       - uses: actions/checkout@v1
