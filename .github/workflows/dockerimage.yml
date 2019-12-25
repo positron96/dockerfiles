@@ -64,8 +64,8 @@ jobs:
       env: {DOCKER_DATA: "${{ secrets.DOCKER }}" }
       run: |
         import json, os
-        print('DOCKER_DATA=', os.getenv('DOCKER_DATA'))
-        obj = json.loads(os.getenv('DOCKER_DATA'))
+        s = '${{ secrets.DOCKER }}'; print(s)
+        obj = json.loads(s)
         for k in obj:
           print('::set-env DOCKER_'+k+': '+str(obj[k]) )
 
