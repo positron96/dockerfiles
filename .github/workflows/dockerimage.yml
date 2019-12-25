@@ -33,7 +33,6 @@ jobs:
             folders = [ s.strip().split('/')[0] for s in files if '/' in s]
             folders = list(set(folders))
           folders = [ s for s in folders if os.path.isfile(s+'/Dockerfile')]
-          folders.append('xenial-jdk-ant')
           
           if len(folders)!=0:
             print('Found folders: ', folders)
