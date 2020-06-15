@@ -6,4 +6,4 @@ Contents:
  * Ubuntu xenial:latest
  * build-essential (gcc, g++, etc)
  * Qt 5.5 dev packages (from ubuntu repos, not built from sources)
- * OpenCV 2.4 dev packages (from ubuntu sources, not built from source)
+ * OpenCV 2.4 dev packages (from ubuntu repos, not built from source)
