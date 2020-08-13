@@ -1,0 +1,12 @@
+#!/bin/sh
+
+#exec 1>&2
+
+DIR=$(dirname "$0")
+
+VER_FILE=${1:-"version_short.txt"}
+
+. $DIR/ver_incl.sh
+
+VER_SHORT="${DATE_SHORT}-$(echo $TAG | tr '\\' '_')-$HASH"
+echo $VER_SHORT > $VER_FILE
