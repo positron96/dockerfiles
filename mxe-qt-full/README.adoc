@@ -1,0 +1,26 @@
+# mxe-qt
+
+This is a docker container that includes MXE toolchain for building windows applications inside docker for CI/CD purposes.
+It includes a compiler and all qt5 packages. 
+Packages are for x86-64 static flavors.
+Packages are installed from MXE debian repository (https://pkg.mxe.cc/repos/apt/client-conf/mxeapt.gpg).
+
+Other packages can be added easily, provided `pkg.mxe.cc` is up. Example of installation:
+```
+apt-get update -qq
+apt-get install mxe-x86-64-w64-mingw32.shared-opencv
+
+```
+
+# Usage example (for GitLab CI/CD yaml)
+
+Build project that is in current directory:
+
+```
+docker run -it --rm -v `pwd`:/src mxe-qt "qmake && make"
+
+```
+
+or just `docker run -it --rm -v `pwd`:/src mxe-qt` (it does the same `qmake` and `make`)
+
+Most probably, the binary will end up in `./release`
