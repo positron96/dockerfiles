@@ -17,11 +17,8 @@ RUN echo mxe \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Add a qmake alias
-RUN ln -s /usr/lib/mxe/usr/x86_64-w64-mingw32.static/qt5/bin/qmake  /usr/lib/mxe/usr/bin/qmake
-
 # Enhance path
-ENV PATH /usr/lib/mxe/usr/bin:$PATH
+ENV PATH /usr/lib/mxe/usr/bin:/usr/lib/mxe/usr/x86_64-w64-mingw32.static/qt5/bin:$PATH
 
 ENTRYPOINT [ "/bin/sh", "-c" ]
 
