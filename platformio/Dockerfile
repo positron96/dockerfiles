@@ -1,16 +1,18 @@
 FROM python:3.9.0-slim
 
-ENV APP_VERSION="5.0.1" \
+ENV APP_VERSION="5.1.1" \
     APP="platformio-core"
 
 LABEL app.name="${APP}" \
       app.version="${APP_VERSION}" \
-      maintainer="Paul Melnikov <positron96@gmail.com"
+      maintainer="Paul Melnikov <positron96@gmail.com>"
 
 ENV USERDIR=/pio
 
 RUN groupadd -r pio --gid=1001 && \
-    useradd -r -g pio --uid=1001 --home $USERDIR --create-home --shell /bin/sh pio
+    useradd -r -g pio --uid=1001 --home $USERDIR --create-home --shell /bin/sh pio &&\
+    apt-get install libtinfo5 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV PATH=$USERDIR/.local/bin:$PATH
 
