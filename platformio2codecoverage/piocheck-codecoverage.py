@@ -9,6 +9,7 @@ import argparse
 from copy import deepcopy
 import json
 import hashlib
+import pathlib
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def __get_codeclimate_category(cppcheck_severity: str) -> str:
         "portability": "Compatibility",
         "information": "Style",
     }
-    return map_severity_to_category[cppcheck_severity]
+    return map_severity_to_category.get(cppcheck_severity, "Unknown")
 
 
 def __get_codeclimate_severity(cpio_severity: str) -> str:
@@ -52,15 +53,15 @@ def __get_codeclimate_severity(cpio_severity: str) -> str:
         "medium" : "major",
         "low" : "minor"
     }
-    return map_severity_to_severity[cpio_severity]
+    return map_severity_to_severity.get(cpio_severity, "Unknown")
 
 
-def convert_file(fname_in: str, fname_out: str) -> bool:
-    """Convert CppCheck XML file to GitLab-compatible "Code Quality" JSON report
+def convert_file(fname_in: str, fname_out: str, base_dir: str) -> bool:
+    """Convert PlatformIO JSON file to GitLab-compatible "Code Quality" JSON report
 
     Args:
-        fname_in (str): Input file path (CppCheck XML). Like 'cppcheck.xml'.
-        fname_out (str): Output file path (code quality JSON). Like 'cppcheck.json'.
+        fname_in (str): Input file path (platformio JSON). Like 'pio.json'.
+        fname_out (str): Output file path (code quality JSON). Like 'codecoverage.json'.
 
     Returns:
         bool: True if the conversion was successful.
@@ -72,7 +73,7 @@ def convert_file(fname_in: str, fname_out: str) -> bool:
     log.debug("Reading input file: %s", os.path.abspath(fname_in))
 
     with open(fname_in, mode="r") as fin:
-        json_out = __convert(json.load(fin) )
+        json_out = __convert(json.load(fin), base_dir )
 
     log.debug("Writing output file: %s", fname_out)
     with open(fname_out, "w") as f_out:
@@ -117,7 +118,7 @@ def _get_line_from_file(filename: str, line_number: int) -> str:
     return str(filename) + str(line_number)
 
 
-def __convert(arr_in) -> str:
+def __convert(arr_in, base_dir:str) -> str:
 
     if len(arr_in) == 0:
         log.info("Empty file imported. Skipping...")
@@ -125,19 +126,8 @@ def __convert(arr_in) -> str:
 
     arr_out = list()
 
-    # Ensure this XML report has errors to convert
-    # if not isinstance(arr_in["results"]["errors"], dict):
-    #     log.warning("Nothing to do")
-    #     return []]
-
-    # if not isinstance(dict_in["results"]["errors"]["error"], list):
-    #     dict_in["results"]["errors"]["error"] = list(
-    #         [dict_in["results"]["errors"]["error"]]
-    #     )
-
-    # log.debug("Got the following dict:\n%s\n", str(dict_in))
-    # log.debug("Type is {}\n".format(str(type(dict_in["results"]["errors"]))))
-    # log.debug("Type is {}\n".format(str(type(dict_in["results"]["errors"]["error"]))))
+    if base_dir is None:
+        base_dir = str(pathlib.Path().resolve())
 
     for section in arr_in:
         defects = section['defects']
@@ -146,7 +136,7 @@ def __convert(arr_in) -> str:
 
             log.debug("Processing -- %s", str(error))
 
-            tmp_dict = dict(CODE_QUAL_ELEMENT)
+            tmp_dict = deepcopy(CODE_QUAL_ELEMENT)
             rule = error["id"]
             tmp_dict["check_name"] = rule
             tmp_dict["categories"] = list(
@@ -165,6 +155,11 @@ def __convert(arr_in) -> str:
             #     )
 
             path = error["file"]
+            if path.startswith(base_dir):
+                path = path[len(base_dir):]
+            else:
+                log.info('path("%s") does not start with SOURCE_DIR("%s")', path, base_dir)
+                
             line = int(error["line"])
 
             column = 0
@@ -221,7 +216,7 @@ def __convert(arr_in) -> str:
             ).hexdigest()
 
             # Append this record
-            arr_out.append( deepcopy(tmp_dict))
+            arr_out.append( tmp_dict)
 
     if len(arr_out) == 0:
         log.warning("Result is empty")
@@ -268,14 +263,15 @@ def __get_args() -> argparse.Namespace:
         help="output filename to write JSON to (default: %(default)s)",
     )
 
-    # parser.add_argument(
-    #     "-s",
-    #     "--source-dir",
-    #     metavar="SOURCE_DIR",
-    #     type=str,
-    #     default=".",
-    #     help="Base directory where source code files can be found. (default: '%(default)s')",
-    # )
+    parser.add_argument(
+         "-s",
+         "--source-dir",
+         metavar="SOURCE_DIR",
+         dest="source_dir",
+         type=str,
+         default=None,
+         help="Base directory where source code files can be found. It will be trimmed from output (default: current)",
+     )
 
     parser.add_argument(
         "-l",
@@ -283,7 +279,7 @@ def __get_args() -> argparse.Namespace:
         metavar="LVL",
         type=str,
         choices=["debug", "info", "warn", "error"],
-        default="debug",
+        default="info",
         help="set logging message severity level (default: '%(default)s')",
     )
 
@@ -317,7 +313,7 @@ def main() -> int:
 
     # t_start = timeit.default_timer()
 
-    if not convert_file(fname_in=args.input_file, fname_out=args.output_file):
+    if not convert_file(fname_in=args.input_file, fname_out=args.output_file, base_dir=args.source_dir):
         m_log.error("Conversion failed")
         return 1
 
