@@ -10,7 +10,8 @@ LABEL app.name="${APP}" \
 ENV USERDIR=/pio
 
 RUN groupadd -r pio --gid=1001 && \
-    useradd -r -g pio --uid=1001 --home $USERDIR --create-home --shell /bin/sh pio &&\
+    useradd -r -g pio --uid=1001 --home $USERDIR --create-home --shell /bin/sh pio && \
+    apt-get update -qq && \
     apt-get install libtinfo5 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
