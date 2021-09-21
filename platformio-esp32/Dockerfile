@@ -4,4 +4,4 @@ RUN pio platform install \
       --with-package framework-espidf \
       --with-package framework-arduino \
       espressif32 \
-    && pio system prune
+    && pio system prune --force
