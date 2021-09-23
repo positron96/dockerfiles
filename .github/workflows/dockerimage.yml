@@ -20,12 +20,19 @@ jobs:
   modified-folders:    
     runs-on: ubuntu-latest
     env:
-      ALL: ${{secrets.ALL}}
+      OUTFILE: folders.txt
+      
+    outputs:
+      need_updates: ${{ steps.check_need_updates.outputs.need_updates }}
     
     steps:
     - uses: actions/checkout@v1
     - name: create file list
-      run: OUTFILE=folders.txt python .github/modified-images.py
+      run: python .github/modified-images.py
+    - name: Calculate number of folders
+      id: check_need_updates
+      run: |
+          [ -s "$OUTFILE" ] && echo "::set-output name=need_updates::1" || echo "::set-output name=need_updates::0"
     - name: upload folder list
       uses: actions/upload-artifact@v1
       with:
@@ -36,6 +43,8 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: modified-folders
+    
+    if: needs.modified-folders.outputs.need_updates==1
 
     steps:
     - uses: actions/checkout@v1
