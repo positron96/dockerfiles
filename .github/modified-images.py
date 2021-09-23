@@ -9,7 +9,7 @@ import subprocess as se
 REG_HOST = os.getenv('REG_HOST', 'ghcr.io')
 REG_PATH = os.getenv('REG_PATH', 'positron96/dockerfiles')
 
-PATH = os.getenv('REPO_PATH', '.')#'/home/positron/Documents/dockerfiles'
+PATH = os.getenv('REPO_PATH', '.')
 
 folders = [ f for f in os.listdir(PATH) if os.path.isdir(os.path.join(PATH,f) ) ]
 folders = [ f for f in folders if os.path.isfile(os.path.join(PATH, f, 'Dockerfile') )]
@@ -24,6 +24,7 @@ def getlocal(f):
     
 
 def gettoken(realm,scope,service=None, **kwargs):
+    """ Requests token from registry auth server """
     with urllib.request.urlopen(f"{realm}?service={service}&scope={scope}") as response:
         r = json.loads( response.read() )
         token = r['token']
@@ -31,6 +32,9 @@ def gettoken(realm,scope,service=None, **kwargs):
   
 def getregistry(folder, token=None):
     """
+    Requests tags for image in registry. 
+    
+    @see https://docs.docker.com/registry/spec/api/
     @see https://docs.docker.com/registry/spec/auth/token/
     """
     try:
@@ -75,12 +79,12 @@ with open(OUTFILE, 'w') as ff:
         try:
             r = getregistry(f)
         except Exception as e:
-            print('failed registry request:', e)
+            print('Failed registry request:', e)
             r = ()
         if need_update(l,r):
             tag = f'{REG_HOST}/{REG_PATH}/{f}'
             #print(f'docker build {f} --tag {tag}:{l} --tag {tag}:latest')
-            print('will rebuild', f, tag, l)
+            print('will build', f, tag, l)
             ff.write(f'{f} {tag} {l}\n')
             cnt += 1
         else:
