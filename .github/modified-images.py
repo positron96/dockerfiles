@@ -84,11 +84,11 @@ with open(OUTFILE, 'w') as ff:
         if need_update(l,r):
             tag = f'{REG_HOST}/{REG_PATH}/{f}'
             #print(f'docker build {f} --tag {tag}:{l} --tag {tag}:latest')
-            print('will build', f, tag, l)
+            print(f, l, 'WILL BE BUILT')
             ff.write(f'{f} {tag} {l}\n')
             cnt += 1
         else:
-            print('no need to update ', f)
+            print(f, 'no need to update ')
     if cnt==0:
         print('No folders to build')
         

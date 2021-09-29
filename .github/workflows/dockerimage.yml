@@ -118,15 +118,21 @@ jobs:
 
     - name: Build the images
       run: |
-        env
+        echo '===================================================='
         echo "Will build these directories:"
         cat folder-list/folders.txt
-        echo '=================='
+        echo '===================================================='
         while read f TAG VER; do 
-          echo '==================='
           echo Folder $f, will be tagged as $TAG:$VER
-          docker build $f/ --tag $TAG:$VER --tag $TAG:latest
-          docker history $TAG:$VER
-          docker push $TAG:$VER
-          docker push $TAG:latest
+          if docker build $f/ --tag $TAG:$VER --tag $TAG:latest ; then
+            docker history $TAG:$VER
+            docker push $TAG:$VER
+            docker push $TAG:latest
+          else
+            echo "BUILD FAILED"
+            echo $f $TAG $VER >> errors.txt
+          fi
+          echo '===================================================='
         done < folder-list/folders.txt
+    - run: |
+        [ -e "errors.txt" ] && cat errors.txt && exit 1
