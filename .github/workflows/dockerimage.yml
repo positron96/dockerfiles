@@ -8,16 +8,28 @@ on:
       - release.*
 env:
   GIT_SHA: ${{ github.sha }}
-  #REG_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
-  #REG_PATH: ${{ secrets.DOCKER_REGISTRY }}
-  REG_HOST: ghcr.io  
-  REG_PATH: ${{ github.repository }}
-  REG_USER: ${{ github.actor }}
-  REG_PASS: ${{ secrets.GITHUB_TOKEN }}
+  REG_HOST: ${{ secrets.DOCKER_REGISTRY_HOST }}
+  REG_PATH: ${{ secrets.DOCKER_REGISTRY_PATH }}
+  REG_USER: ${{ secrets.DOCKER_USERNAME }}
+  REG_PASS: ${{ secrets.DOCKER_PASSWORD }}
+  #REG_HOST: ghcr.io  
+  #REG_PATH: ${{ github.repository }}
+  #REG_USER: ${{ github.actor }}
+  #REG_PASS: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
+  needs-ghcr:
+    runs-on: ubuntu-latest
+    outputs:
+      also_ghcr: ${{ steps.check.outputs.also_ghcr }}
+    steps:
+    - id: check
+      env:
+          MY_KEY: ${{ secrets.ALSO_GHCR }}
+      if: "${{ env.MY_KEY != '' }}"
+      run: echo "::set-output name=also_ghcr::true"
      
-  modified-folders:    
+  modified-folders: 
     runs-on: ubuntu-latest
     env:
       OUTFILE: folders.txt
@@ -38,13 +50,49 @@ jobs:
       with:
         name: folder-list
         path: folders.txt
+        
+  modified-folders-ghcr:   
+    runs-on: ubuntu-latest
+    needs: [needs-ghcr]
+    env:
+      OUTFILE: folders1.txt
+      REG_HOST: ghcr.io  
+      REG_PATH: ${{ github.repository }}
+      REG_USER: ${{ github.actor }}
+      REG_PASS: ${{ secrets.GITHUB_TOKEN }}
+    if: needs.needs-ghcr.outputs.also_ghcr == 'true'
+      
+    #outputs:
+    #  need_updates: ${{ steps.check_need_updates.outputs.need_updates }}
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/download-artifact@v1
+      with:
+        name: folder-list
+    - name: create file list
+      run: python .github/modified-images.py
+    #- name: Calculate number of folders
+    #  id: check_need_updates
+    #  run: |
+    #      [ -s "$OUTFILE" ] && echo "::set-output name=need_updates::1" || echo "::set-output name=need_updates::0"
+    - name: merge folder lists
+      run: |
+          cat folder-list/folders.txt folders1.txt > folders.txt
+    - name: upload folder list
+      uses: actions/upload-artifact@v1
+      with:
+        name: folder-list
+        path: folders.txt
 
   build:
 
     runs-on: ubuntu-latest
-    needs: modified-folders
+    needs: [ "modified-folders", "modified-folders-ghcr", "needs-ghcr"]
+    env: 
+      ALSO_GHCR: ${{ secrets.ALSO_GHCR }}
     
-    if: needs.modified-folders.outputs.need_updates==1
+    #if: needs.modified-folders.outputs.need_updates==1
 
     steps:
     - uses: actions/checkout@v1
@@ -53,11 +101,13 @@ jobs:
       with:
         name: folder-list
 
-#    - name: Login to GitHub Docker Registry
-#      env:
-#        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME || github.actor }}
-#        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD || secrets.GITHUB_TOKEN }}
-#      run: docker login $DOCKER_REGISTRY_HOST --username $DOCKER_USERNAME --password $DOCKER_PASSWORD  
+    - name: Login to GitHub Docker Registry
+      if: needs.needs-ghcr.outputs.also_ghcr == 'true'
+      uses: docker/login-action@v1
+      with:
+          registry: "ghcr.io"
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Log in to registry
       uses: docker/login-action@v1

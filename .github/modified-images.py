@@ -6,8 +6,8 @@ import json
 import os
 import subprocess as se
 
-REG_HOST = os.getenv('REG_HOST', 'ghcr.io')
-REG_PATH = os.getenv('REG_PATH', 'positron96/dockerfiles')
+REG_HOST = os.environ['REG_HOST'] # ghcr.io
+REG_PATH = os.environ['REG_PATH'] # positron96/dockerfiles
 
 PATH = os.getenv('REPO_PATH', '.')
 
