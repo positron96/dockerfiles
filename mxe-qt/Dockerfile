@@ -15,6 +15,7 @@ RUN echo mxe \
        mxe-x86-64-w64-mingw32.static-cc \
        mxe-x86-64-w64-mingw32.static-qtbase \
        mxe-x86-64-w64-mingw32.static-qtserialport \
+       mxe-x86-64-w64-mingw32.static-qttools \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
