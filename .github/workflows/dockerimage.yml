@@ -89,15 +89,12 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: [ "modified-folders", "modified-folders-ghcr", "needs-ghcr"]
-    env: 
-      ALSO_GHCR: ${{ secrets.ALSO_GHCR }}
     
     #if: needs.modified-folders.outputs.need_updates==1
 
     steps:
     - uses: actions/checkout@v1
-    - name: get folder list
-      uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v1
       with:
         name: folder-list
 
@@ -135,4 +132,4 @@ jobs:
           echo '===================================================='
         done < folder-list/folders.txt
     - run: |
-        [ -e "errors.txt" ] && cat errors.txt && exit 1
+        [ -e "errors.txt" ] && echo "ERRORS!!!" && cat errors.txt 
