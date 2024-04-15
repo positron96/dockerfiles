@@ -4,8 +4,9 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update -qq \
     && apt-get install -y --no-install-recommends \
-       curl gnupg2 openssl apt-transport-https ca-certificates \
-    echo mxe \
+       curl gnupg2 openssl apt-transport-https ca-certificates
+
+RUN echo mxe \
     && curl -sSL "https://pkg.mxe.cc/repos/apt/client-conf/mxeapt.gpg" | apt-key add - \
     && echo "deb https://pkg.mxe.cc/repos/apt xenial main" >> /etc/apt/sources.list \
     && apt-get update -qq \
