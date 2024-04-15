@@ -132,4 +132,4 @@ jobs:
           echo '===================================================='
         done < folder-list/folders.txt
     - run: |
-        [ -e "errors.txt" ] && echo "ERRORS!!!" && cat errors.txt 
+        [ -e "errors.txt" ] && (echo "ERRORS!" && cat errors.txt) || true
