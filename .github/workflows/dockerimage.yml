@@ -27,7 +27,7 @@ jobs:
       env:
           MY_KEY: ${{ secrets.ALSO_GHCR }}
       if: "${{ env.MY_KEY != '' }}"
-      run: echo "::set-output name=also_ghcr::true"
+      run: echo "also_ghcr=true" >> $GITHUB_OUTPUT
      
   modified-folders: 
     runs-on: ubuntu-latest
@@ -44,8 +44,8 @@ jobs:
     - name: Calculate number of folders
       id: check_need_updates
       run: |
-          [ -s "$OUTFILE" ] && echo "::set-output name=need_updates::1" || echo "::set-output name=need_updates::0"
-    - name: upload folder list
+          [ -s "$OUTFILE" ] && echo "need_updates=1">>$GITHUB_OUTPUT || echo "need_updates=0">>$GITHUB_OUTPUT
+    - name: Upload folder list
       uses: actions/upload-artifact@v1
       with:
         name: folder-list
@@ -53,7 +53,7 @@ jobs:
         
   modified-folders-ghcr:   
     runs-on: ubuntu-latest
-    needs: [needs-ghcr]
+    needs: [needs-ghcr, modified-folders]
     env:
       OUTFILE: folders1.txt
       REG_HOST: ghcr.io  
